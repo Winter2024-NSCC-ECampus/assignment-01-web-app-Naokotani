@@ -27,9 +27,11 @@ const TodoLayout = ({ id }) => {
         <div>
           <h2 className="title is-3">Your Todo List:</h2>
           <ul>
-            {todos.map((todo) => (
-              <Todo key={todo.id} todo={todo} id={id} getTodos={getTodos} />
-            ))}
+            {todos
+              .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+              .map((todo) => (
+                <Todo key={todo.id} todo={todo} id={id} getTodos={getTodos} />
+              ))}
           </ul>
         </div>
       )}

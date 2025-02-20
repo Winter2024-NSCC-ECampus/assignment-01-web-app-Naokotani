@@ -40,7 +40,7 @@ const TodoInput = ({ userId, todoId, edit, getTodos, setEdit }) => {
       dueDate: dueDate,
     }
 
-    const response = await fetch(`${apiUrl}todo/?todoId=${todoId}`, {
+    await fetch(`${apiUrl}todo/?todoId=${todoId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
