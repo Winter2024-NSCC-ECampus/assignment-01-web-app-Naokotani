@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -25,5 +26,5 @@ public class Todo {
     private String description;
     @Column(nullable = false)
     private LocalDateTime createDate;
-    private LocalDateTime dueDate;
+    private LocalDate dueDate;
 }

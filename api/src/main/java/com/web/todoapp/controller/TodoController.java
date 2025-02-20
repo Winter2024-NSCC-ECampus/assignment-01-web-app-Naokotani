@@ -11,6 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,11 +31,22 @@ public class TodoController {
         this.todoRepository = todoRepository;
     }
 
-    @PostMapping("{id}")
-    public ResponseEntity<Todo> createTodo(@RequestBody TodoDto todoDto, @PathVariable long id) {
-        Optional<User> findUser = userRepository.findById(id);
+    @PostMapping
+    public ResponseEntity<Todo> createTodo(@RequestBody TodoDto todoDto, @RequestParam long userId) {
+        Optional<User> findUser = userRepository.findById(userId);
+        try {
+            DateTimeFormatter formatter =
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate date = LocalDate.parse(todoDto.getDueDate(), formatter);
+            System.out.printf("%s%n", date);
+        } catch (DateTimeParseException exc) {
+            System.out.printf("%s is not parsable!%n", todoDto.getDueDate());
+            throw exc;      // Rethrow the exception.
+        }
         User user = findUser.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         Todo todo = todoMapper.todoDtoToTodo(todoDto);
+        LocalDateTime now = LocalDateTime.now();
+        todo.setCreateDate(now);
         todo = todoRepository.save(todo);
         user.getTodos().add(todo);
         userRepository.save(user);
@@ -39,27 +54,49 @@ public class TodoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TodoDto>> getTodos(@RequestParam long id) {
-        Optional<User> findUser = userRepository.findById(id);
+    public ResponseEntity<List<TodoDto>> getTodos(@RequestParam long userId) {
+        Optional<User> findUser = userRepository.findById(userId);
         User user = findUser.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         List<TodoDto> todoDtos = todoMapper.todoListToTodoDtoList(user.getTodos().stream().toList());
         return new ResponseEntity<>(todoDtos, HttpStatus.OK);
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteTodo(@PathVariable long id) {
-        Optional<Todo> findTodo = todoRepository.findById(id);
-        Todo todo = findTodo.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    @GetMapping("{id}")
+    public ResponseEntity<TodoDto> getTodo(@PathVariable long id) {
+        Todo todo = todoRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        TodoDto todoDto = todoMapper.todoToTodoDto(todo);
+        return new ResponseEntity<>(todoDto, HttpStatus.OK);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<String> deleteTodo(@RequestParam long userId, @RequestParam long todoId) {
+        Todo todo = todoRepository.findById(todoId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        user.getTodos().remove(todo);
+        userRepository.save(user);
         todoRepository.delete(todo);
         return new ResponseEntity<>("Todo deleted", HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<TodoDto> updateTodo(@RequestBody TodoDto todoDto, @PathVariable long id) {
-        todoRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        Todo todo = todoMapper.todoDtoToTodo(todoDto);
-        todo.setId(id);
-        todoRepository.save(todo);
+    @PutMapping
+    public ResponseEntity<TodoDto> updateTodo(@RequestBody TodoDto todoDto, @RequestParam long todoId) {
+        Todo todo = todoRepository.findById(todoId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        LocalDate date;
+        try {
+            DateTimeFormatter formatter =
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            date = LocalDate.parse(todoDto.getDueDate(), formatter);
+            System.out.printf("%s%n", date);
+        } catch (DateTimeParseException exc) {
+            System.out.printf("%s is not parsable!%n", todoDto.getDueDate());
+            throw exc;      // Rethrow the exception.
+        }
+        todo.setDescription(todoDto.getDescription());
+        todo.setDueDate(date);
+        todo.setTitle(todoDto.getTitle());
+        todo.setId(todoId);
+        todo = todoRepository.save(todo);
+        todoDto = todoMapper.todoToTodoDto(todo);
         return new ResponseEntity<>(todoDto, HttpStatus.OK);
     }
 }

@@ -11,6 +11,7 @@ import java.util.List;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface TodoMapper {
     Todo todoDtoToTodo(TodoDto todoDto);
+    TodoDto todoToTodoDto(Todo todo);
     List<TodoDto> todoListToTodoDtoList(List<Todo> todos);
 }
 

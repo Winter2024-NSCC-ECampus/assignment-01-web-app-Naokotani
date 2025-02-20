@@ -11,8 +11,10 @@ export default defineConfig({
       '/api/': {
         target: 'http://api:8080',
         changeOrigin: true,
+        cors: true,
         secure: false,
       },
     },
   },
 })
+
