@@ -3,12 +3,14 @@ import TodoInput from './TodoInput';
 import Todo from './Todo';
 import Error from './Error';
 
-const TodoLayout = ({ id }) => {
+const TodoLayout = () => {
   const apiUrl = import.meta.env.VITE_DEV_API_URL
   const [todos, setTodos] = useState([]);
   const [error, setError] = useState("");
+  const id = 152;
 
   const getTodos = async () => {
+
     const res = await fetch(`${apiUrl}todo/?userId=${id}`).catch();
     const data = await res.json();
 

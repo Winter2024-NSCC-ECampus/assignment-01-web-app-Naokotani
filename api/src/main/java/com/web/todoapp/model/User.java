@@ -1,5 +1,6 @@
 package com.web.todoapp.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +20,9 @@ public class User {
     @GeneratedValue
     private Long id;
     private String email;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+    private String role;
     @OneToMany
     private Set<Todo> todos;
 }
