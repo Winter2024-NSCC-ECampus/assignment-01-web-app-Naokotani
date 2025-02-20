@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import TodoInput from './TodoInput';
 import Todo from './Todo';
+import Error from './Error';
 
 const TodoLayout = ({ id }) => {
   const apiUrl = import.meta.env.VITE_DEV_API_URL
   const [todos, setTodos] = useState([]);
+  const [error, setError] = useState("");
 
   const getTodos = async () => {
-    const response = await fetch(`${apiUrl}todo/?userId=${id}`);
-    const data = await response.json();
-    console.log(data);
-    setTodos(data);
+    const res = await fetch(`${apiUrl}todo/?userId=${id}`).catch();
+    const data = await res.json();
+
+    if (res.ok)
+      setTodos(data);
+    else
+      setError("Error loading posts. Please try again later");
   };
 
   useEffect(() => {
@@ -35,6 +40,7 @@ const TodoLayout = ({ id }) => {
           </ul>
         </div>
       )}
+      {error && <Error error={error} setError={setError} />}
     </div>
   );
 };

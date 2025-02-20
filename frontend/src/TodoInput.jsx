@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import Error from "./Error";
 
 const TodoInput = ({ userId, todoId, edit, getTodos, setEdit }) => {
   const apiUrl = import.meta.env.VITE_DEV_API_URL
@@ -6,6 +7,7 @@ const TodoInput = ({ userId, todoId, edit, getTodos, setEdit }) => {
   const [dueDate, setDueDate] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [error, setError] = useState("");
 
 
   const createTodo = async (e) => {
@@ -22,13 +24,15 @@ const TodoInput = ({ userId, todoId, edit, getTodos, setEdit }) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(todo),
-    });
+    }).catch();
 
     if (response.ok) {
       getTodos();
       setTitle("");
       setDescription("");
       setDueDate("");
+    } else {
+      setError("Error creating post. Sorry!");
     }
   };
 
@@ -40,16 +44,20 @@ const TodoInput = ({ userId, todoId, edit, getTodos, setEdit }) => {
       dueDate: dueDate,
     }
 
-    await fetch(`${apiUrl}todo/?todoId=${todoId}`, {
+    const res = await fetch(`${apiUrl}todo/?todoId=${todoId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(todo),
-    });
+    }).catch();
 
-    setEdit(false);
-    getTodos();
+    if (res.ok) {
+      setEdit(false);
+      getTodos();
+    } else {
+      setError("Error updating post");
+    }
   };
 
   const getTodo = async (todoId) => {
@@ -58,7 +66,6 @@ const TodoInput = ({ userId, todoId, edit, getTodos, setEdit }) => {
     setDueDate(data.dueDate);
     setDescription(data.description);
     setTitle(data.title);
-
   }
 
   useEffect(() => {
@@ -68,51 +75,57 @@ const TodoInput = ({ userId, todoId, edit, getTodos, setEdit }) => {
   }, [])
 
   return (
-    <form onSubmit={(e) => (edit ? editTodo(e, todoId) : createTodo(e))}>
-      <div className="field">
-        <label className="label" htmlFor="title">Title:</label>
-        <div className="control">
-          <input
-            className="input"
-            required
-            type="text"
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Enter a new task"
-          />
+    <div>
+
+      <form onSubmit={(e) => (edit ? editTodo(e, todoId) : createTodo(e))}>
+        <div className="field">
+          <label className="label" htmlFor="title">Title:</label>
+          <div className="control">
+            <input
+              className="input"
+              required
+              type="text"
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter a new task"
+            />
+          </div>
         </div>
-      </div>
-      <div className="field">
-        <label className="label" htmlFor="description">Description:</label>
-        <div className="control">
-          <textarea
-            className="textarea"
-            required
-            id="description"
-            rows="5"
-            cols="20"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter task description"
-          ></textarea>
+        <div className="field">
+          <label className="label" htmlFor="description">Description:</label>
+          <div className="control">
+            <textarea
+              className="textarea"
+              required
+              id="description"
+              rows="5"
+              cols="20"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter task description"
+            ></textarea>
+          </div>
         </div>
-      </div>
-      <div className="field">
-        <label className="label" htmlFor="date">Pick a date:</label>
-        <div className="control">
-          <input
-            className="input"
-            required
-            type="date"
-            id="date"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
+        <div className="field">
+          <label className="label" htmlFor="date">Pick a date:</label>
+          <div className="control">
+            <input
+              className="input"
+              required
+              type="date"
+              id="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+            />
+          </div>
         </div>
-      </div>
-      <button className="button is-link is-fullwidth" type="submit">Add Todo</button>
-    </form>
+        <button className="button is-link is-fullwidth" type="submit">Add Todo</button>
+      </form>
+      {error &&
+        <Error error={error} setError={setError} />
+      }
+    </div>
   );
 };
 

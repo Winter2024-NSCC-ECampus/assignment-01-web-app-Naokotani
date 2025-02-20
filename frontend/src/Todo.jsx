@@ -1,9 +1,11 @@
 import { useState } from "react";
 import TodoInput from "./TodoInput";
+import Error from "./Error";
 
 const Todo = ({ todo, id, getTodos }) => {
   const apiUrl = import.meta.env.VITE_DEV_API_URL
   const [edit, setEdit] = useState(false);
+  const [error, setError] = useState(false);
 
   const deleteTodo = async (todoId) => {
     const response = await fetch(`${apiUrl}todo/?userId=${id}&todoId=${todoId}`, {
@@ -11,6 +13,8 @@ const Todo = ({ todo, id, getTodos }) => {
     });
     if (response.ok)
       getTodos();
+    else
+      setError("Error deleting post.");
   }
 
   return (
@@ -35,6 +39,9 @@ const Todo = ({ todo, id, getTodos }) => {
           getTodos={getTodos}
           setEdit={setEdit}
         />
+      }
+      {error &&
+        <Error erro={error} setError={setError} />
       }
     </li>
   );
