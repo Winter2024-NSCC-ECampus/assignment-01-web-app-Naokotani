@@ -39,8 +39,12 @@ public class ApplicationConfig {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 List<String> origins = new ArrayList<>();
-                origins.add("http://localhost:5173");
-                origins.add("http://localhost:8085");
+                if(System.getenv("API_VERSION").equals("dev")) {
+                    origins.add("http://localhost:5173");
+                    origins.add("http://localhost:8085");
+                } else {
+                    origins.add("https://alembichead.com");
+                }
                 CorsConfiguration ccfg = new CorsConfiguration();
                 ccfg.setAllowedOrigins(origins);
                 ccfg.setAllowedMethods(Collections.singletonList("*"));

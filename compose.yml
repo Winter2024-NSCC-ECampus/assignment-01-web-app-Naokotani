@@ -44,6 +44,6 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://todo-db:5432/postgres
       SPRING_DATASOURCE_PASSWORD: topsecret
       SPRING_DATASOURCE_USER: postgres
-      JWT_SECRET_KEY: wpembytrwcvnryxksdbqwjebruyGHyudqgwveytrtrCSnwifoesarjbwe
+      API_VERSION: dev
 volumes:
   todo-app:

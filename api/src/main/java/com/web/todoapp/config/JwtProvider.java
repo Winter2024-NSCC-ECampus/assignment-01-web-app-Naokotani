@@ -39,7 +39,6 @@ public class JwtProvider {
         return String.join(",",auths);
     }
 
-
     @SuppressWarnings("deprecation")
     public static String getEmailFromJwtToken(String jwt) {
         jwt = jwt.substring(7); // Assuming "Bearer " is removed from the token
