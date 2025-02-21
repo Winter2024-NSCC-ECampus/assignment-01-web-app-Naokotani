@@ -18,6 +18,13 @@ RUN mvn clean package -DskipTests
 
 # Stage 2: Create the runtime image
 FROM eclipse-temurin:23
+#
+# Install OpenSSL to generate a secure JWT secret key
+RUN apt-get update && apt-get install -y openssl
+
+RUN mkdir -p /app
+# Generate the JWT secret key and store it in a file
+RUN openssl rand -base64 32 > /app/jwt-secret.key
 
 # Copy the JAR file built in the previous stage
 COPY --from=build /app/target/*.jar app.jar

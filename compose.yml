@@ -1,14 +1,14 @@
 services:
-  db:
+  todo-db:
     image: postgres
     restart: unless-stopped
     environment:
-      POSTGRES_PASSWORD: secret
+      POSTGRES_PASSWORD: topsecret
     ports:
       - 5432:5432
     volumes:
       - todo-app:/var/lib/postgresql/data
-  client:
+  todo-client:
     image: client
     build:
       context: ./frontend/
@@ -24,20 +24,26 @@ services:
         target: /usr/src/app/vite.config.js
     ports:
       - 5173:5173
-  api:
-    # names the service.
-    image: spring-api
-    # Where the source code and Dockerfile live.
+  todo-nginx:
+    image: todo-nginx
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile.prod
+    ports:
+      - 8085:80
+  todo-api:
+    image: todo-api
     depends_on: 
-      - db
+      - todo-db
     build:
       context: ./api/
       dockerfile: ./Dockerfile
     ports: 
       - 8081:8080
-    # Set this so spring can find the db as it differs from on localhost.
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://todo-db:5432/postgres
+      SPRING_DATASOURCE_PASSWORD: topsecret
+      SPRING_DATASOURCE_USER: postgres
       JWT_SECRET_KEY: wpembytrwcvnryxksdbqwjebruyGHyudqgwveytrtrCSnwifoesarjbwe
 volumes:
   todo-app:
