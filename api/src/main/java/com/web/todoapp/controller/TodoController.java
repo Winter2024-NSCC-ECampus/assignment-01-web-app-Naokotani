@@ -11,9 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/todo/")
@@ -30,31 +31,42 @@ public class TodoController {
         this.todoService = todoService;
     }
 
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return userRepository.findByEmail(email);
+    }
+
     @PostMapping
-    public ResponseEntity<Todo> createTodo(@RequestBody TodoDto todoDto, @RequestParam long userId) {
-        Todo todo = todoService.createTodo(todoDto, userId);
+    public ResponseEntity<Todo> createTodo(@RequestBody TodoDto todoDto) {
+        User user = getCurrentUser();
+        Todo todo = todoService.createTodo(todoDto, user.getId());
         return new ResponseEntity<>(todo, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<TodoDto>> getTodos(@RequestParam long userId) {
-        Optional<User> findUser = userRepository.findById(userId);
-        User user = findUser.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    public ResponseEntity<List<TodoDto>> getTodos() {
+        User user = getCurrentUser();
         List<TodoDto> todoDtos = todoMapper.todoListToTodoDtoList(user.getTodos().stream().toList());
         return new ResponseEntity<>(todoDtos, HttpStatus.OK);
     }
 
     @GetMapping("{id}")
     public ResponseEntity<TodoDto> getTodo(@PathVariable long id) {
-        Todo todo = todoRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        User user = getCurrentUser();
+        Todo todo = user.getTodos()
+                .stream().filter(t -> t.getId() == id)
+                .findFirst().orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
         TodoDto todoDto = todoMapper.todoToTodoDto(todo);
         return new ResponseEntity<>(todoDto, HttpStatus.OK);
     }
 
     @DeleteMapping
-    public ResponseEntity<String> deleteTodo(@RequestParam long userId, @RequestParam long todoId) {
-        Todo todo = todoRepository.findById(todoId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    public ResponseEntity<String> deleteTodo(@RequestParam long todoId) {
+        User user = getCurrentUser();
+        Todo todo = user.getTodos()
+                .stream().filter(t -> t.getId() == todoId)
+                .findFirst().orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
         user.getTodos().remove(todo);
         userRepository.save(user);
         todoRepository.delete(todo);
@@ -63,7 +75,8 @@ public class TodoController {
 
     @PutMapping
     public ResponseEntity<TodoDto> updateTodo(@RequestBody TodoDto todoDto, @RequestParam long todoId) {
-        todoDto = todoService.updateTodo(todoDto, todoId);
+        User user = getCurrentUser();
+        todoDto = todoService.updateTodo(todoDto, todoId, user);
         return new ResponseEntity<>(todoDto, HttpStatus.OK);
     }
 }

@@ -7,10 +7,9 @@ import axiosInstance from './axiosInstance';
 const TodoLayout = () => {
   const [todos, setTodos] = useState([]);
   const [error, setError] = useState("");
-  const id = 152;
 
   const getTodos = async () => {
-    axiosInstance.get(`todo/?userId=${id}`)
+    axiosInstance.get(`todo/`)
       .then(res => {
         console.log(res.data);
         setTodos(res.data);
@@ -22,14 +21,14 @@ const TodoLayout = () => {
   };
 
   useEffect(() => {
-    getTodos(id);
+    getTodos();
   }, [])
 
   return (
     <div className="container mt-5">
       <h1 className="title is-2 has-text-centered">Todos!</h1>
       <div className="box">
-        <TodoInput userId={id} edit={false} todoId={0} getTodos={getTodos} />
+        <TodoInput edit={false} todoId={0} getTodos={getTodos} />
       </div>
       {todos.length > 0 && (
         <div>
@@ -38,7 +37,7 @@ const TodoLayout = () => {
             {todos
               .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
               .map((todo) => (
-                <Todo key={todo.id} todo={todo} id={id} getTodos={getTodos} />
+                <Todo key={todo.id} todo={todo} getTodos={getTodos} />
               ))}
           </ul>
         </div>

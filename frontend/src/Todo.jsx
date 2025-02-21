@@ -3,13 +3,12 @@ import TodoInput from "./TodoInput";
 import Error from "./Error";
 import axiosInstance from "./axiosInstance";
 
-const Todo = ({ todo, id, getTodos }) => {
-  const apiUrl = import.meta.env.VITE_DEV_API_URL
+const Todo = ({ todo, getTodos }) => {
   const [edit, setEdit] = useState(false);
   const [error, setError] = useState(false);
 
   const deleteTodo = async (todoId) => {
-    axiosInstance.delete(`todo/?userId=${id}&todoId=${todoId}`)
+    axiosInstance.delete(`todo/?todoId=${todoId}`)
       .then(res => {
         console.log(res.data);
         getTodos();
@@ -18,14 +17,6 @@ const Todo = ({ todo, id, getTodos }) => {
         console.error('Error:', error);
         setError("Error deleting post.");
       });
-
-    const response = await fetch(`todo/?userId=${id}&todoId=${todoId}`, {
-      method: "DELETE",
-    });
-    if (response.ok)
-      getTodos();
-    else
-      setError("Error deleting post.");
   }
 
   return (
@@ -44,7 +35,6 @@ const Todo = ({ todo, id, getTodos }) => {
       </div>
       {edit &&
         <TodoInput
-          userId={id}
           todoId={todo.id}
           edit={true}
           getTodos={getTodos}

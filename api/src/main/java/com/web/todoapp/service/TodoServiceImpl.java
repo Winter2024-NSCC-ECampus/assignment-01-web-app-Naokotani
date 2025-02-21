@@ -29,8 +29,10 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public TodoDto updateTodo(TodoDto todoDto, long todoId) throws ResponseStatusException {
-        Todo todo = todoRepository.findById(todoId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    public TodoDto updateTodo(TodoDto todoDto, long todoId, User user) throws ResponseStatusException {
+        Todo todo = user.getTodos()
+                .stream().filter(t -> t.getId() == todoId)
+                .findFirst().orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
         LocalDate date;
         try {
             DateTimeFormatter formatter =

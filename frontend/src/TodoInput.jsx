@@ -2,14 +2,12 @@ import React, { useState, useEffect } from "react";
 import Error from "./Error";
 import axiosInstance from "./axiosInstance";
 
-const TodoInput = ({ userId, todoId, edit, getTodos, setEdit }) => {
-  const apiUrl = import.meta.env.VITE_DEV_API_URL
+const TodoInput = ({ todoId, edit, getTodos, setEdit }) => {
 
   const [dueDate, setDueDate] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
-
 
   const createTodo = async (e) => {
     e.preventDefault();
@@ -19,7 +17,7 @@ const TodoInput = ({ userId, todoId, edit, getTodos, setEdit }) => {
       dueDate: dueDate,
     }
 
-    axiosInstance.post(`todo/?userId=${userId}`, todo)
+    axiosInstance.post(`todo/`, todo)
       .then(res => {
         console.log(res.data);
         getTodos();
@@ -52,11 +50,16 @@ const TodoInput = ({ userId, todoId, edit, getTodos, setEdit }) => {
   };
 
   const getTodo = async (todoId) => {
-    const response = await fetch(`${apiUrl}todo/${todoId}`);
-    const data = await response.json();
-    setDueDate(data.dueDate);
-    setDescription(data.description);
-    setTitle(data.title);
+    axiosInstance.get(`todo/${todoId}`)
+      .then(res => {
+        console.log(res.data);
+        setDueDate(res.data.dueDate);
+        setDescription(res.data.description);
+        setTitle(res.data.title);
+      })
+      .catch(() => {
+        setError("Error updating post");
+      });
   }
 
   useEffect(() => {
