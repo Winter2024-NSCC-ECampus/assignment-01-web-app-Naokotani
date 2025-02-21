@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Error from "./Error";
+import axiosInstance from "./axiosInstance";
 
 const TodoInput = ({ userId, todoId, edit, getTodos, setEdit }) => {
   const apiUrl = import.meta.env.VITE_DEV_API_URL
@@ -18,22 +19,17 @@ const TodoInput = ({ userId, todoId, edit, getTodos, setEdit }) => {
       dueDate: dueDate,
     }
 
-    const response = await fetch(`${apiUrl}todo/?userId=${userId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(todo),
-    }).catch();
-
-    if (response.ok) {
-      getTodos();
-      setTitle("");
-      setDescription("");
-      setDueDate("");
-    } else {
-      setError("Error creating post. Sorry!");
-    }
+    axiosInstance.post(`todo/?userId=${userId}`, todo)
+      .then(res => {
+        console.log(res.data);
+        getTodos();
+        setTitle("");
+        setDescription("");
+        setDueDate("");
+      })
+      .catch(() => {
+        setError("Error creating post. Sorry!");
+      });
   };
 
   const editTodo = async (e, todoId) => {
@@ -44,20 +40,15 @@ const TodoInput = ({ userId, todoId, edit, getTodos, setEdit }) => {
       dueDate: dueDate,
     }
 
-    const res = await fetch(`${apiUrl}todo/?todoId=${todoId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(todo),
-    }).catch();
-
-    if (res.ok) {
-      setEdit(false);
-      getTodos();
-    } else {
-      setError("Error updating post");
-    }
+    axiosInstance.put(`todo/?todoId=${todoId}`, todo)
+      .then(res => {
+        console.log(res.data);
+        setEdit(false);
+        getTodos();
+      })
+      .catch(() => {
+        setError("Error updating post");
+      });
   };
 
   const getTodo = async (todoId) => {
@@ -76,7 +67,6 @@ const TodoInput = ({ userId, todoId, edit, getTodos, setEdit }) => {
 
   return (
     <div>
-
       <form onSubmit={(e) => (edit ? editTodo(e, todoId) : createTodo(e))}>
         <div className="field">
           <label className="label" htmlFor="title">Title:</label>

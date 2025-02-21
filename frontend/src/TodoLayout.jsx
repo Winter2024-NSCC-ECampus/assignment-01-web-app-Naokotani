@@ -2,22 +2,23 @@ import React, { useState, useEffect } from 'react';
 import TodoInput from './TodoInput';
 import Todo from './Todo';
 import Error from './Error';
+import axiosInstance from './axiosInstance';
 
 const TodoLayout = () => {
-  const apiUrl = import.meta.env.VITE_DEV_API_URL
   const [todos, setTodos] = useState([]);
   const [error, setError] = useState("");
   const id = 152;
 
   const getTodos = async () => {
-
-    const res = await fetch(`${apiUrl}todo/?userId=${id}`).catch();
-    const data = await res.json();
-
-    if (res.ok)
-      setTodos(data);
-    else
-      setError("Error loading posts. Please try again later");
+    axiosInstance.get(`todo/?userId=${id}`)
+      .then(res => {
+        console.log(res.data);
+        setTodos(res.data);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        setError("Error loading posts. Please try again later");
+      });
   };
 
   useEffect(() => {

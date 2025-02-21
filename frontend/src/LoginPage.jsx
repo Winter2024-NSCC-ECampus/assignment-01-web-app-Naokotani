@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie'
 
 function LoginPage() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const history = useNavigate();
@@ -11,17 +12,18 @@ function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      if (!username || !password) {
-        setError('Please enter both username and password.');
+      if (!email || !password) {
+        setError('Please enter both email and password.');
         return;
       }
 
-      const response = await axios.post(`${apiUrl}/auth/signin`, { username, password });
+      const response = await axios.post(`${apiUrl}auth/signin`, { email, password });
       console.log('Login successful:', response.data);
-      history('/dashboard');
+      Cookies.set('authToken', response.data.jwt, { expires: 7 });
+      history('/todos');
     } catch (error) {
       console.error('Login failed:', error.response ? error.response.data : error.message);
-      setError('Invalid username or password.');
+      setError('Invalid email or password.');
     }
   };
 
@@ -38,8 +40,8 @@ function LoginPage() {
                 id="email"
                 type="email"
                 placeholder="Email address"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
           </div>

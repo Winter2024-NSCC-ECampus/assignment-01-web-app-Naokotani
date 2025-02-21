@@ -27,7 +27,7 @@ function SignupPage() {
         password: password,
       });
       console.log(response.data);
-      history('/dashboard');
+      history('/todos');
     } catch (error) {
       console.error('Signup failed:', error.response ? error.response.data : error.message);
       setError(error.response ? error.response.data : error.message);
