@@ -26,6 +26,7 @@ services:
       - 5173:5173
   todo-nginx:
     image: todo-nginx
+    restart: unless-stopped
     build:
       context: ./frontend/
       dockerfile: Dockerfile.prod
@@ -33,6 +34,7 @@ services:
       - 8085:80
   todo-api:
     image: todo-api
+    restart: unless-stopped
     depends_on: 
       - todo-db
     build:

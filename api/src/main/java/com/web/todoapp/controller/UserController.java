@@ -62,7 +62,6 @@ public class UserController {
     public ResponseEntity<AuthResponse> signin(@RequestBody User loginRequest) {
         String username = loginRequest.getEmail();
         String password = loginRequest.getPassword();
-        System.out.println(username+"-------"+password);
         Authentication authentication = authenticate(username,password);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = JwtProvider.generateToken(authentication);
@@ -77,16 +76,14 @@ public class UserController {
 
 
     private Authentication authenticate(String username, String password) {
-        System.out.println(username+"---++----"+password);
         UserDetails userDetails = customUserDetails.loadUserByUsername(username);
-        System.out.println("Sig in in user details"+ userDetails);
         if(userDetails == null) {
             System.out.println("Sign in details - null" + userDetails);
-            throw new BadCredentialsException("Invalid username and password");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
         if(!passwordEncoder.matches(password,userDetails.getPassword())) {
             System.out.println("Sign in userDetails - password mismatch"+userDetails);
-            throw new BadCredentialsException("Invalid password");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
         return new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
     }
