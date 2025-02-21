@@ -18,8 +18,7 @@ const TodoInput = ({ todoId, edit, getTodos, setEdit }) => {
     }
 
     axiosInstance.post(`todo/`, todo)
-      .then(res => {
-        console.log(res.data);
+      .then(() => {
         getTodos();
         setTitle("");
         setDescription("");
@@ -39,8 +38,7 @@ const TodoInput = ({ todoId, edit, getTodos, setEdit }) => {
     }
 
     axiosInstance.put(`todo/?todoId=${todoId}`, todo)
-      .then(res => {
-        console.log(res.data);
+      .then(() => {
         setEdit(false);
         getTodos();
       })
@@ -52,7 +50,6 @@ const TodoInput = ({ todoId, edit, getTodos, setEdit }) => {
   const getTodo = async (todoId) => {
     axiosInstance.get(`todo/${todoId}`)
       .then(res => {
-        console.log(res.data);
         setDueDate(res.data.dueDate);
         setDescription(res.data.description);
         setTitle(res.data.title);

@@ -9,8 +9,7 @@ const Todo = ({ todo, getTodos }) => {
 
   const deleteTodo = async (todoId) => {
     axiosInstance.delete(`todo/?todoId=${todoId}`)
-      .then(res => {
-        console.log(res.data);
+      .then(() => {
         getTodos();
       })
       .catch(error => {

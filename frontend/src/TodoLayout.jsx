@@ -3,15 +3,17 @@ import TodoInput from './TodoInput';
 import Todo from './Todo';
 import Error from './Error';
 import axiosInstance from './axiosInstance';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 
 const TodoLayout = () => {
   const [todos, setTodos] = useState([]);
   const [error, setError] = useState("");
+  const history = useNavigate();
 
   const getTodos = async () => {
     axiosInstance.get(`todo/`)
       .then(res => {
-        console.log(res.data);
         setTodos(res.data);
       })
       .catch(error => {
@@ -19,6 +21,11 @@ const TodoLayout = () => {
         setError("Error loading posts. Please try again later");
       });
   };
+
+  const handleLogout = async () => {
+    Cookies.remove("jwtToken");
+    history("/");
+  }
 
   useEffect(() => {
     getTodos();
@@ -43,6 +50,7 @@ const TodoLayout = () => {
         </div>
       )}
       {error && <Error error={error} setError={setError} />}
+      <button className="button is-danger is-fullwidth" onClick={handleLogout}>Logout</button>
     </div>
   );
 };

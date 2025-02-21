@@ -35,8 +35,8 @@ function SignupPage() {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100">
-      <div className="box" style={{ width: '600px', height: 'auto' }}>
+    <div className="container">
+      <div className="box mt-6">
         <div className="p-4">
           <h2 className="title is-4 has-text-centered mb-4">Sign Up Page</h2>
           {error && <p className="has-text-danger">{error}</p>}

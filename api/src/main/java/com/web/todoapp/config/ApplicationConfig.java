@@ -29,7 +29,6 @@ public class ApplicationConfig {
                         .requestMatchers("/api/todo/").hasRole("user")
                         .anyRequest().authenticated()
                 );
-
         return http.build();
     }
 

@@ -18,7 +18,6 @@ function LoginPage() {
       }
 
       const response = await axios.post(`${apiUrl}auth/signin`, { email, password });
-      console.log('Login successful:', response.data);
       Cookies.set('authToken', response.data.jwt, { expires: 7 });
       history('/todos');
     } catch (error) {
@@ -28,8 +27,8 @@ function LoginPage() {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100">
-      <div className="box" style={{ width: '500px', height: 'auto' }}>
+    <div className="container">
+      <div className="box mt-6" >
         <div className="p-4">
           <h2 className="title is-4 has-text-centered mb-4">Login Page</h2>
           <div className="field">
